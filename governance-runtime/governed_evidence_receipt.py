@@ -133,7 +133,8 @@ def _safe_archive(raw:bytes,allowed:set[str])->dict[str,bytes]:
     return result
 
 def verify_receipt_v2_structure(receipt:Mapping)->bool:
-    if not isinstance(receipt,Mapping) or set(receipt)!=V2_TOP or receipt.get("schema")!="r8-governed-evidence-receipt/v2" or receipt.get("authority_effect")!="NONE": return False
+    if not isinstance(receipt,Mapping) or receipt.get("schema")!="r8-governed-evidence-receipt/v2" or receipt.get("authority_effect")!="NONE": return False
+    if set(receipt) not in (V2_TOP,V2_TOP|{"review_source"}): return False
     candidate=receipt.get("candidate")
     if not isinstance(candidate,Mapping) or set(candidate)!=CANDIDATE or not all(_sha40(candidate.get(k)) for k in ("baseline","commit","tree")) or not isinstance(candidate.get("changed_file_count"),int) or candidate["changed_file_count"]<0: return False
     trusted=receipt.get("trusted_code")
@@ -147,7 +148,13 @@ def verify_receipt_v2_structure(receipt:Mapping)->bool:
         if row["archive_digest"]!=row["archive_raw_sha256"] or row["payload_member_path"]==row["statement_member_path"]: return False
     if not (isinstance(receipt.get("freeze_attestation"),Mapping) and set(receipt["freeze_attestation"])==ARTIFACT and _sha256(receipt["freeze_attestation"]["raw_sha256"]) and _sha40(receipt["freeze_attestation"]["git_blob"])): return False
     review=receipt.get("independent_review")
-    return isinstance(review,Mapping) and set(review)==REVIEW_ARTIFACT_V2 and _sha256(review["original_upload_raw_sha256"]) and _sha256(review["committed_review_sha256"]) and _sha40(review["git_blob"])
+    if not (isinstance(review,Mapping) and set(review)==REVIEW_ARTIFACT_V2 and _sha256(review["original_upload_raw_sha256"]) and _sha256(review["committed_review_sha256"]) and _sha40(review["git_blob"])): return False
+    if "review_source" in receipt:
+        src=receipt["review_source"]
+        if not isinstance(src,Mapping) or set(src)!={"repository","revision","path"} or not all(isinstance(src.get(k),str) and src[k] for k in src): return False
+        if not _sha40(src["revision"]) or src["path"].startswith("/") or "\\" in src["path"] or any(p in {"",".",".."} for p in src["path"].split("/")): return False
+        if src["repository"]!=receipt.get("repository"): return False
+    return True
 
 def ingest_verified_receipt(spec: Mapping, api: GitHubEvidenceAPI, blobs: Mapping[str, bytes], *, artifact_locations: Mapping[str, Mapping[str, str]], trusted_verifier_commit:str, trusted_verifier_tree:str, evidence_ref:str) -> dict:
     """Verify GitHub associations and exact bytes, then emit deterministic evidence only."""
@@ -178,7 +185,11 @@ def ingest_verified_receipt(spec: Mapping, api: GitHubEvidenceAPI, blobs: Mappin
         raw=blobs[name]; record=receipt[name]; location=artifact_locations.get(name,{})
         if not location.get("revision") or not location.get("path"): raise ValueError(f"{name} identity mismatch")
         if name=="independent_review":
+            src=receipt.get("review_source",{})
+            if src and (src.get("repository")!=repo or src.get("revision")!=location.get("revision") or src.get("path")!=location.get("path")): raise ValueError(f"{name} source mismatch")
             committed=api.git_blob_bytes(repo,location["revision"],location["path"])
             if record["original_upload_raw_sha256"] != sha256_bytes(raw) or record["committed_review_sha256"] != sha256_bytes(committed) or git_blob_sha1(committed) != record["git_blob"] or api.git_blob(repo,location["revision"],location["path"]) != record["git_blob"]: raise ValueError(f"{name} identity mismatch")
         elif record["raw_sha256"] != sha256_bytes(raw) or record["git_blob"] != git_text_blob_sha1(raw) or api.git_blob(repo,location["revision"],location["path"]) != record["git_blob"]: raise ValueError(f"{name} identity mismatch")
+    review_location=artifact_locations.get("independent_review",{})
+    receipt["review_source"]={"repository":repo,"revision":review_location["revision"],"path":review_location["path"]}
     return receipt

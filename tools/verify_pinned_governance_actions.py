@@ -2,7 +2,7 @@
 import re
 from pathlib import Path
 PIN=re.compile(r"^[0-9a-f]{40}$")
-GOVERNED_WORKFLOW_NAMES=("governance-candidate-platform-review.yml","governance-evidence-receipt-ingestion.yml","governance-manual-review-ingestion.yml","r8-v15-r1-post-sg1-integration-invariant-gate.yml")
+GOVERNED_WORKFLOW_NAMES=("governance-candidate-platform-review.yml","governance-evidence-receipt-ingestion.yml","governance-manual-review-ingestion.yml","governance-review-request-integrity.yml","r8-v15-r1-post-sg1-integration-invariant-gate.yml")
 WORKFLOWS=tuple(Path(".github/workflows")/name for name in GOVERNED_WORKFLOW_NAMES)
 def _strip_comment(value):
     quote=None;out=[]
@@ -15,6 +15,10 @@ def _strip_comment(value):
     return value
 def uses_nodes(text):
     """Find YAML mapping keys in block and flow style without trusting formatting."""
+    # This verifier intentionally accepts only the governed YAML subset. Quoted
+    # mapping keys, aliases and anchors are rejected rather than ignored.
+    if re.search(r"(?:^|[,{]|\n)\s*['\"](?:uses|shell|run|if|continue-on-error)['\"]\s*:",text,re.M) or re.search(r"(^|\s)[&*][A-Za-z0-9_-]+",text):
+        raise ValueError("unsupported quoted/aliased YAML mapping")
     found=[]
     for line in text.replace("\r\n","\n").splitlines():
         quote=None;i=0
@@ -46,6 +50,8 @@ def verify(text):
 def verify_inventory(paths=WORKFLOWS):
     expected={Path(".github/workflows")/name for name in GOVERNED_WORKFLOW_NAMES}
     actual=set(paths)
+    discovered=set(Path(".github/workflows").glob("governance-*.yml")) | {Path(".github/workflows/r8-v15-r1-post-sg1-integration-invariant-gate.yml")}
+    if discovered!=expected:raise ValueError(f"governed workflow inventory mismatch missing={discovered-expected} extra={expected-discovered}")
     if actual!=expected:raise ValueError(f"governed workflow inventory mismatch missing={expected-actual} extra={actual-expected}")
     for path in paths:
         if not path.is_file():raise ValueError(f"governed workflow missing: {path}")

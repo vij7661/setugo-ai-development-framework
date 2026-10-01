@@ -32,7 +32,7 @@ class GitHubREST:
         canonical=canonical_governed_ref(ref,allow_tags=allow_tags)
         return self._get(f"https://api.github.com/repos/{repository}/git/ref/{canonical}")["object"]["sha"]
     def run(self,repository,run_id):
-        v=self._get(f"https://api.github.com/repos/{repository}/actions/runs/{run_id}");return {"id":v["id"],"workflow_file":v["path"],"conclusion":v["conclusion"]}
+        v=self._get(f"https://api.github.com/repos/{repository}/actions/runs/{run_id}");return {"id":v["id"],"workflow_file":v["path"],"head_sha":v.get("head_sha"),"repository":repository,"conclusion":v["conclusion"]}
     def job(self,repository,job_id):
         v=self._get(f"https://api.github.com/repos/{repository}/actions/jobs/{job_id}");return {"id":v["id"],"run_id":v["run_id"],"workflow_identity":v["name"],"conclusion":v["conclusion"]}
     def artifact(self,repository,artifact_id):
@@ -46,6 +46,13 @@ class GitHubREST:
         value=self._get(f"https://api.github.com/repos/{repository}/contents/{path}?ref={revision}")
         if value.get("encoding")!="base64":raise ValueError("Git content is not base64")
         return base64.b64decode(value["content"],validate=True)
+
+    def committed_review(self, repository, revision, path):
+        """Read review bytes and Git identity through the trusted GitHub API."""
+        if not isinstance(revision,str) or not re.fullmatch(r"[0-9a-f]{40}",revision): raise ValueError("review revision must be an immutable commit")
+        if not isinstance(path,str) or not path or path.startswith("/") or "\\" in path or any(p in {"",".",".."} for p in path.split("/")): raise ValueError("unsafe review path")
+        raw=self.git_blob_bytes(repository,revision,path)
+        return raw,self.git_blob(repository,revision,path)
 
 def main():
     p=argparse.ArgumentParser();p.add_argument("--spec",required=True);p.add_argument("--artifact-locations",required=True);p.add_argument("--trusted-verifier-commit",required=True);p.add_argument("--trusted-verifier-tree",required=True);p.add_argument("--evidence-ref",required=True);p.add_argument("--output",required=True);a=p.parse_args()

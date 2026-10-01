@@ -16,6 +16,11 @@ def verify(path,text):
     if not re.search(r"TRUSTED_VERIFIER_COMMIT:\s*[0-9a-f]{40}",text) or not re.search(r"TRUSTED_VERIFIER_TREE:\s*[0-9a-f]{40}",text):raise ValueError("trusted verifier root must be exact SHA/tree")
     if any(token in text for token in ("python3 evidence-ref/","bash evidence-ref/","evidence-ref/.github/","evidence-ref/governance-runtime")):raise ValueError("evidence ref may not supply executable code")
     if any(token in executable for token in ("gh pr merge","git merge","git push")):raise ValueError("ingestion workflow may not mutate merge state")
+    if path.name=="governance-manual-review-ingestion.yml":
+        if "actions: read" not in text or 'env: {GITHUB_TOKEN: "${{ github.token }}"}' not in text: raise ValueError("manual ingestion requires read-only Actions token")
+        if "actions: write" in text or "contents: write" in text: raise ValueError("manual ingestion write permission forbidden")
+        if "receipt_workflow_file" in text or "receipt_workflow_identity" in text: raise ValueError("producer identity may not be caller-selected")
+        if "fetch_committed_review.py" not in executable or "--committed-review staged/committed-review.txt" not in executable: raise ValueError("committed review must come from trusted GitHub fetch")
 def main():
     for path in REQUIRED:verify(path,path.read_text(encoding="utf-8"))
     print("Q17_INGESTION_WORKFLOW_SELF_CHECK_PASS")

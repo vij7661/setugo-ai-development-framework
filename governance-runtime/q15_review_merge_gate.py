@@ -27,11 +27,13 @@ def review_merge_evidence_eligible(*, review_path: Path, freeze_attestation_path
         if proof.get("schema")!="r8-trusted-receipt-proof/v1" or proof.get("source")!="GITHUB_ACTIONS_ARTIFACT_DOWNLOAD" or proof.get("receipt_sha256")!=expected_receipt_sha256 or not verify_trusted_code_binding(receipt,expected_commit=trusted_verifier_commit,expected_tree=trusted_verifier_tree) or proof.get("verifier_commit")!=trusted_verifier_commit or proof.get("verifier_tree")!=trusted_verifier_tree: return False
         committed=committed_review_path.read_bytes()
         if receipt["independent_review"]["committed_review_sha256"]!=sha256_bytes(committed) or receipt["independent_review"]["git_blob"]!=git_blob_sha1(committed): return False
+        if "review_source" in receipt and receipt["review_source"].get("repository")!=receipt.get("repository"): return False
         review_raw=review_path.read_bytes();freeze_raw=freeze_attestation_path.read_bytes()
-        if receipt["independent_review"]["original_upload_raw_sha256"]!=sha256_bytes(review_raw): return False
+        if "review_source" not in receipt and receipt["independent_review"]["original_upload_raw_sha256"]!=sha256_bytes(review_raw): return False
         if receipt["freeze_attestation"]!={"raw_sha256":sha256_bytes(freeze_raw),"git_blob":git_text_blob_sha1(freeze_raw)}: return False
     elif not verify_receipt_files(receipt,linux_statement_path=linux_statement_path,packet_statement_path=review_packet_statement_path,freeze_attestation_path=freeze_attestation_path,review_path=review_path,packet_payload_path=packet_payload_path): return False
-    parsed = parse_independent_review_file(review_path, candidate_label=expected_identity["candidate_label"])
+    authoritative_review = committed_review_path if receipt.get("schema")=="r8-governed-evidence-receipt/v2" and "review_source" in receipt else review_path
+    parsed = parse_independent_review_file(authoritative_review, candidate_label=expected_identity["candidate_label"])
     attestation = load_and_verify(freeze_attestation_path, root=root, require_v2=True)
     packet_statement = attestation["review_packet_statement"] if receipt.get("schema")=="r8-governed-evidence-receipt/v2" else json.loads(review_packet_statement_path.read_text(encoding="utf-8"))
     identity = parsed["identity"]

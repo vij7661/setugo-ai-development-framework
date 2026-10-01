@@ -49,7 +49,9 @@ def evidence(review_bytes):
  return linux,packet,payload,freeze,receipt
 def write_files(root,review_bytes,linux,packet,payload,freeze,receipt):
  values={"review":review_bytes,"linux":raw(linux),"packet":raw(packet),"payload":payload,"freeze":raw(freeze),"receipt":raw(receipt)};paths={}
- for name,data in values.items():paths[name]=root/name;paths[name].write_bytes(data)
+ for name,data in values.items():
+  filename={"review":"review.txt","linux":"linux.json","packet":"packet.json","payload":"payload.bin","freeze":"freeze.json","receipt":"receipt.json"}[name]
+  paths[name]=root/filename;paths[name].write_bytes(data)
  return paths,values
 class GateTests(unittest.TestCase):
  def run_gate(self,text):

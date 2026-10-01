@@ -18,3 +18,16 @@ No repair changes Gemini endpoint, method, model, prompt, payload, provider para
 Q18 pre-freeze adversarial remediation strengthens the same families: manual eligibility now requires a trusted GitHub-artifact receipt proof; verifier SHA/tree is checked at both ingestion and eligibility; review committed SHA is checked against exact GitHub content bytes and Git blob; governed action inventory parses block and flow YAML; and load-bearing steps reject unapproved shell semantics. These repairs remain evidence/control-plane only.
 
 The trusted verifier root is explicitly pinned to commit `f71139a937be23bd5f4c545d3b3dc2199b47bc06` and tree `e7d311e25e2232452dd5c209d0825d277f487756`, independent of the final workflow head. Manual eligibility consumes only the receipt downloaded from the trusted artifact and its trusted proof; evidence-ref receipt and expected-identity files cannot select verifier authority or receipt truth.
+
+## PF2 pre-freeze remediation
+
+| Finding | Root cause closed | Load-bearing regression | API effect |
+|---|---|---|---|
+| PF2-H01 | Receipt producer is fixed to the governed workflow path, `receipt-only` job, repository, exact run head, and artifact association; caller-selected workflow identifiers are ignored. | Wrong workflow, producer head, job, artifact, candidate, and replayed receipt tests fail before trust. | Control/evidence only |
+| PF2-H02 | Manual ingestion grants only `contents: read` and `actions: read`, and supplies `github.token` only to the trusted fetch step. | Structural workflow check rejects missing token/permission and any write permission. | Control/evidence only |
+| PF2-H03 | Committed review is fetched read-only from GitHub at an immutable revision/path and checked against receipt SHA/blob; verifier checkout is never used as review storage. | Wrong revision/path/blob/bytes and traversal tests fail. | Control/evidence only |
+| PF2-H04 | Eligibility parses the receipt-bound committed review bytes; evidence-ref review text is not authoritative. | BOUNDED_PASS/CHANGES_REQUIRED split-brain and provenance mismatch cases fail. | Control/evidence only |
+| PF2-M01 | Action lint rejects quoted-key/alias bypasses and discovers the complete governed workflow population. | Quoted flow keys, mutable Docker refs, local traversal, and omitted workflow tests fail. | Control/evidence only |
+| PF2-M02 | Invariant step lint rejects quoted executable-control keys and unsupported YAML mappings. | Quoted shell/if/continue-on-error/run substitutions fail. | Control/evidence only |
+
+All repairs preserve the provider request contract and keep `AUTHORITY_EFFECT = NONE`.

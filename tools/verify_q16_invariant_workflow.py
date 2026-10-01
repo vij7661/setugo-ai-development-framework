@@ -57,6 +57,7 @@ def steps(text):
   i+=1
  return result
 def verify(text):
+ if __import__('re').search(r"(?:^|[,{]|\n)\s*['\"](?:name|shell|run|if|continue-on-error)['\"]\s*:",text,__import__('re').M) or __import__('re').search(r"(^|\s)[&*][A-Za-z0-9_-]+",text):raise ValueError("unsupported quoted/aliased workflow mapping")
  inventory=steps(text)
  for name,command in CONTRACT.items():
   step=inventory.get(name)

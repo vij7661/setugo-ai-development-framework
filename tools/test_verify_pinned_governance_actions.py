@@ -6,7 +6,7 @@ def rejects(value):
  raise AssertionError("mutable/unsafe action accepted")
 def main():
  verify_inventory()
- for bad in ("uses: actions/checkout@v4","uses: actions/checkout@v4 # mutable",'uses: "actions/checkout@v4"',"uses: 'actions/checkout@v4' # mutable","steps:\n  - {uses: actions/checkout@v4}","jobs:\n  reusable:\n    uses: owner/workflow/.github/workflows/reuse.yml@v4","uses: docker://alpine:latest"):
+ for bad in ("uses: actions/checkout@v4","uses: actions/checkout@v4 # mutable",'uses: "actions/checkout@v4"',"uses: 'actions/checkout@v4' # mutable",'steps:\n  - {"uses": actions/checkout@v4}',"steps:\n  - {'uses': actions/checkout@v4}","jobs:\n  reusable:\n    uses: owner/workflow/.github/workflows/reuse.yml@v4","uses: docker://alpine:latest"):
   rejects(bad)
  verify("steps:\n  - {uses: actions/checkout@"+"a"*40+"}")
  verify("steps:\n  - uses: docker://alpine@sha256:"+"a"*64)
