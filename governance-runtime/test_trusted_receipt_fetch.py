@@ -1,8 +1,20 @@
-import copy,unittest
+import copy,unittest,subprocess
 from unittest.mock import Mock
 from trusted_receipt_fetch import fetch
 from test_governed_evidence_receipt import fixtures
 class Tests(unittest.TestCase):
+ def test_declared_immutable_trusted_root_requires_post_review_promotion_for_v2_gate(self):
+  """The declared root is intentionally audited, never silently replaced.
+
+  Q18's current v2 producer is ahead of the independently promoted root;
+  this regression keeps that dependency visible until governance promotes a
+  new exact root.  It prevents a candidate-local test from masquerading as
+  proof that the immutable workflow root is already compatible.
+  """
+  root="86841191f1f9686c73e7df30bc255db65f4c86cc"
+  source=subprocess.check_output(["git","show",f"{root}:governance-runtime/q15_review_merge_gate.py"],text=True)
+  self.assertIn('r8-trusted-receipt-proof/v1',source)
+  self.assertNotIn('r8-trusted-receipt-proof/v2',source)
  def test_positive_artifact_bound_receipt(self):
   receipt,_,archives=fixtures();api=Mock();api.run.return_value={"id":99,"repository":"a/b","head_sha":receipt["trusted_code"]["verifier_commit"],"workflow_file":".github/workflows/governance-evidence-receipt-ingestion.yml","conclusion":"success"};api.job.return_value={"id":98,"run_id":99,"workflow_identity":"receipt-only","conclusion":"success"};api.artifact.return_value={"id":97,"run_id":99,"digest":"sha256:archive","archive_download_url":"u"};api.download_artifact.return_value=archives["packet"]
   # Build a one-member archive containing the receipt for the focused proof test.

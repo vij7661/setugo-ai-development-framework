@@ -31,3 +31,13 @@ The trusted verifier root is explicitly pinned to commit `86841191f1f9686c73e7df
 | PF2-M02 | Invariant step lint rejects quoted executable-control keys and unsupported YAML mappings. | Quoted shell/if/continue-on-error/run substitutions fail. | Control/evidence only |
 
 All repairs preserve the provider request contract and keep `AUTHORITY_EFFECT = NONE`.
+
+## PF4 pre-freeze remediation
+
+| Finding | Status | Repair / invariant | Regression | API effect |
+|---|---|---|---|---|
+| PF4-H01 | BLOCKED_PENDING_TRUSTED_ROOT_PROMOTION | The exact independently declared root remains immutable and is audited by a deterministic test; because that root still contains the v1 gate while Q18 produces v2, no candidate-local code is substituted and no closure is claimed. A separately authorized trusted-root promotion is required before governed receipt eligibility can consume the v2 path. | `test_declared_immutable_trusted_root_requires_post_review_promotion_for_v2_gate` proves the exact root/version mismatch. | Control/evidence only |
+| PF4-C01 | ACCEPTED | Invariant workflow is a closed structural contract: exact top-level/triggers/permissions/env, one job, exact ordered steps, no extra/unnamed/duplicate steps, and no execution-environment controls. | Structural adversarial tests reject attacker jobs, write permissions, altered runner, env/defaults/container, unnamed/extra/duplicate steps. | Control/evidence only |
+| PF4-H02 | ACCEPTED | Action lint rejects unsupported block scalars and escaped/aliased/tagged/quoted mapping representations; governed workflow inventory is exhaustive. | Mutable block-scalar actions, flow/quoted/escaped keys, Docker tags, traversal locals, and omitted workflows fail closed. | Control/evidence only |
+
+PF4-H01 is intentionally not represented as closed: the next governed action is an independently authorized trusted-root successor promotion, followed by another pre-freeze review. Frozen Q17 and all earlier history remain unchanged.

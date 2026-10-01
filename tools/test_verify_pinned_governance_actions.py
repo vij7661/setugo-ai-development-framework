@@ -7,6 +7,8 @@ def rejects(value):
 def main():
  verify_inventory()
  for bad in ("uses: actions/checkout@v4","uses: actions/checkout@v4 # mutable",'uses: "actions/checkout@v4"',"uses: 'actions/checkout@v4' # mutable",'steps:\n  - {"uses": actions/checkout@v4}',"steps:\n  - {'uses': actions/checkout@v4}","jobs:\n  reusable:\n    uses: owner/workflow/.github/workflows/reuse.yml@v4","uses: docker://alpine:latest"):
+   rejects(bad)
+ for bad in ("uses: >-\n  actions/checkout@v4","uses: |\n  actions/checkout@v4","steps:\n  - {uses: >-\n      actions/checkout@v4}"):
   rejects(bad)
  for bad in ('steps:\n  - {"u\\x73es": actions/checkout@v4}','steps:\n  - {uses: &pin actions/checkout@v4}','steps:\n  - {uses: *pin}','steps:\n  - {uses: !Ref actions/checkout@v4}','steps:\n  - {uses:\n      actions/checkout@v4}'):
   rejects(bad)
