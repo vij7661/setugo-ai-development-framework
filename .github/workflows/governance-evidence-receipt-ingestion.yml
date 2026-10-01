@@ -1,0 +1,36 @@
+name: Governed External Evidence Receipt Ingestion
+on:
+  workflow_dispatch:
+    inputs:
+      evidence_ref: {description: "Post-freeze evidence ref", required: true, type: string}
+permissions:
+  contents: read
+  actions: read
+env:
+  AUTHORITY_EFFECT: NONE
+  PYTHONDONTWRITEBYTECODE: "1"
+  TRUSTED_VERIFIER_COMMIT: 698d390dee9f062c984be8663aafc7994d009542
+  TRUSTED_VERIFIER_TREE: b5f89c29d91a2b55caec1815009d414e162bef11
+jobs:
+  receipt-only:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout immutable trusted verifier code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {ref: "${{ env.TRUSTED_VERIFIER_COMMIT }}", path: trusted, fetch-depth: 0, persist-credentials: false}
+      - name: Checkout evidence as data only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with: {ref: "${{ inputs.evidence_ref }}", path: evidence-ref, fetch-depth: 1, persist-credentials: false}
+      - name: Verify GitHub run job artifact and exact-byte provenance
+        shell: bash
+        env: {GITHUB_TOKEN: "${{ github.token }}"}
+        run: |
+          set -euo pipefail
+          python3 trusted/governance-runtime/stage_evidence_data.py --source evidence-ref/evidence --destination staged receipt-spec.json artifact-locations.json freeze-attestation.json independent-review.txt
+          TRUSTED_TREE="$(git -C trusted rev-parse HEAD^{tree})"; test "$TRUSTED_TREE" = "$TRUSTED_VERIFIER_TREE"
+          python3 trusted/governance-runtime/github_evidence_ingestion.py --spec staged/receipt-spec.json \
+            --artifact-locations staged/artifact-locations.json --trusted-verifier-commit "$TRUSTED_VERIFIER_COMMIT" \
+            --trusted-verifier-tree "$TRUSTED_TREE" --evidence-ref "${{ inputs.evidence_ref }}" \
+            --output governed-evidence-receipt.json
+      - uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
+        with: {name: governed-evidence-receipt-only, path: governed-evidence-receipt.json, if-no-files-found: error}

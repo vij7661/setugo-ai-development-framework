@@ -19,7 +19,7 @@ jobs:
       GITHUB_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout trigger head
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           fetch-depth: 0
       - name: Resolve review trigger
@@ -34,10 +34,11 @@ jobs:
           if t.get('review_class')!='PLATFORM_AUTO_API_REVIEW': raise SystemExit('review class mismatch')
           if t.get('transport')!='AUTOMATIC_API': raise SystemExit('transport mismatch')
           if t.get('provider')!='gemini': raise SystemExit('provider mismatch')
-          for f in ('review_request_path','model'):
+          for f in ('review_request_path','reviewer_access_manifest_path','model'):
             v=t.get(f)
             if not isinstance(v,str) or not v.strip(): raise SystemExit(f'{f} required')
           print('REVIEW_REQUEST_PATH='+t['review_request_path'])
+          print('REVIEWER_ACCESS_MANIFEST_PATH='+t['reviewer_access_manifest_path'])
           print('GEMINI_REVIEW_MODEL='+t['model'])
           PY
       - name: Require Gemini secret and request file
@@ -45,6 +46,7 @@ jobs:
         run: |
           test -n "$GEMINI_API_KEY" || { echo 'GEMINI_API_KEY repository secret required'; exit 2; }
           test -f "$REVIEW_REQUEST_PATH"
+          test -f "$REVIEWER_ACCESS_MANIFEST_PATH"
       - name: Execute authenticated governance review through materialization v2
         shell: bash
         run: |
@@ -52,6 +54,7 @@ jobs:
           mkdir -p governance-review-evidence
           python governance-runtime/platform_candidate_review_v2.py \
             --request "$REVIEW_REQUEST_PATH" \
+            --access-manifest "$REVIEWER_ACCESS_MANIFEST_PATH" \
             --output-dir governance-review-evidence \
             --model "$GEMINI_REVIEW_MODEL" \
             2> >(tee governance-review-evidence/provider-error.log >&2)
@@ -70,6 +73,7 @@ jobs:
           status={
             'schema_version':2,
             'review_request_path':t.get('review_request_path'),
+            'reviewer_access_manifest_path':t.get('reviewer_access_manifest_path'),
             'trigger_sha':os.environ.get('GITHUB_SHA'),
             'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),
             'review_class':'PLATFORM_AUTO_API_REVIEW',
@@ -85,7 +89,7 @@ jobs:
           PY
       - name: Upload governance review evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808
         with:
           name: governance-candidate-platform-review
           path: governance-review-evidence/

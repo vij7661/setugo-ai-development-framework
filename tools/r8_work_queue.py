@@ -1,12 +1,16 @@
 """Machine-readable queue selector/report generator; human boundaries never stop other tasks."""
 from __future__ import annotations
 import json
+import hashlib
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "governance-runtime"))
+from freeze_attestation import verify_freeze_attestation  # noqa: E402
 MANIFEST = ROOT / "governance-r8/CODEX-WORK-QUEUE-51.json"
-ALLOWED_STATES = {"RUNNABLE_CODING", "CODE_COMPLETE", "HUMAN_REVIEW_BLOCKED", "MANUAL_INTERVENTION_BLOCKED", "CODE_DEPENDENCY_BLOCKED", "TERMINAL"}
+ALLOWED_STATES = {"RUNNABLE_CODING", "CODE_COMPLETE", "FROZEN_REVIEWED_CHANGES_REQUIRED", "HUMAN_REVIEW_BLOCKED", "MANUAL_INTERVENTION_BLOCKED", "CODE_DEPENDENCY_BLOCKED", "TERMINAL"}
 ALLOWED_BLOCKING = {"HUMAN_REVIEW_BLOCKED", "MANUAL_INTERVENTION_BLOCKED", "CODE_DEPENDENCY_BLOCKED"}
 AUTHORITY_KEYS = {"runtime", "release", "deployment", "production", "merge", "activation"}
 HEAD_RE = re.compile(r"[0-9a-f]{40}\Z")
@@ -36,14 +40,52 @@ def load():
                 raise ValueError("unknown manual blocking status")
             if task["state"] in ALLOWED_BLOCKING and manual["blocking_status"] != task["state"]:
                 raise ValueError("manual blocking status incompatible with task state")
+        if task.get("candidate_state") == "FROZEN":
+            required = ("candidate_commit", "candidate_tree", "frozen_ref", "review_state", "freeze_attestation")
+            if any(not isinstance(task.get(field), str) or not task[field] for field in required):
+                raise ValueError("frozen candidate identity is incomplete")
+            attestation = json.loads((ROOT / task["freeze_attestation"]).read_text(encoding="utf-8"))
+            if not verify_freeze_attestation(attestation, root=ROOT):
+                raise ValueError("queue freeze attestation is not externally verifiable")
+            for field in ("candidate_commit", "candidate_tree", "frozen_ref"):
+                if task[field] != attestation.get(field):
+                    raise ValueError("queue candidate identity disagrees with freeze attestation")
+        elif any(field in task for field in ("candidate_commit", "candidate_tree", "frozen_ref", "freeze_attestation")):
+            raise ValueError("unfrozen queue task cannot claim frozen identity")
+        external = task.get("external_lifecycle")
+        if external is not None:
+            if task.get("candidate_state") != "PRE_FREEZE_READY":
+                raise ValueError("external lifecycle must remain separate from candidate-local construction state")
+            if set(external) not in ({"state", "candidate_commit", "candidate_tree", "frozen_ref", "attestation_location"},{"state", "candidate_commit", "candidate_tree", "frozen_ref", "attestation_location", "evidence_pointer"}):
+                raise ValueError("external lifecycle identity is incomplete")
+            if external["state"] != "FROZEN_VERIFIED" or external["attestation_location"] != "EXTERNAL_NOT_CANDIDATE_LOCAL":
+                raise ValueError("external lifecycle must rely on external attestation")
+            if not HEAD_RE.fullmatch(external["candidate_commit"]) or not HEAD_RE.fullmatch(external["candidate_tree"]) or not external["frozen_ref"].startswith("frozen/"):
+                raise ValueError("external lifecycle identity is malformed")
+            pointer=external.get("evidence_pointer")
+            if pointer is not None:
+                required={"tracker","independent_review","committed_review_sha256","committed_review_git_blob","original_upload_raw_sha256","original_upload_verification"}
+                if set(pointer)!=required or not all(isinstance(pointer[k],str) and pointer[k] for k in required) or not re.fullmatch(r"[0-9a-f]{64}",pointer["committed_review_sha256"]) or not re.fullmatch(r"[0-9a-f]{64}",pointer["original_upload_raw_sha256"]) or not HEAD_RE.fullmatch(pointer["committed_review_git_blob"]) or pointer["original_upload_verification"]!="EXTERNAL_RECEIPT_ONLY":
+                    raise ValueError("external lifecycle evidence pointer malformed")
+                review_path=ROOT/pointer["independent_review"]
+                if not review_path.is_file(): raise ValueError("external lifecycle review pointer missing")
+                committed=review_path.read_bytes()
+                blob=hashlib.sha1(f"blob {len(committed)}\0".encode()+committed).hexdigest()
+                if blob!=pointer["committed_review_git_blob"] or hashlib.sha256(committed).hexdigest()!=pointer["committed_review_sha256"]:
+                    raise ValueError("external lifecycle review identity mismatch")
     return data
 
 def next_runnable(data: dict) -> dict | None:
-    done = {t["id"] for t in data["tasks"] if t["state"] in {"CODE_COMPLETE", "TERMINAL"}}
+    done = {t["id"] for t in data["tasks"] if t["state"] in {"CODE_COMPLETE", "FROZEN_REVIEWED_CHANGES_REQUIRED", "TERMINAL"}}
     for task in data["tasks"]:
         if task["state"] != "RUNNABLE_CODING": continue
         if all(dep in done for dep in task["dependencies"]): return task
     return None
+
+def current_lifecycle(task: dict) -> str:
+    """External evidence supersedes current interpretation, never historical text."""
+    external=task.get("external_lifecycle")
+    return external["state"] if isinstance(external,dict) else task.get("candidate_state","UNKNOWN")
 
 def verify_external_head(data: dict, *, report_source_head: str, final_remote_head: str | None, expected_external_head: str | None) -> bool:
     if data.get("issue") != 52 or not HEAD_RE.fullmatch(report_source_head or "") or not HEAD_RE.fullmatch(expected_external_head or "") or not HEAD_RE.fullmatch(final_remote_head or ""):

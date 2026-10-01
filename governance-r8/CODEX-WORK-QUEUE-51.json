@@ -226,6 +226,92 @@
         "requested_action": "review the current frozen successor candidate only",
         "blocking_status": "HUMAN_REVIEW_BLOCKED"
       }
+    },
+    {
+      "id": "Q14",
+      "pr": 62,
+      "branch": "codex/r8-v15-r1-q14-permanent-invariants-2026-09-26",
+      "dependencies": ["Q10"],
+      "state": "FROZEN_REVIEWED_CHANGES_REQUIRED",
+      "candidate_commit": "01ec3651c9c0764e69944cd5718b07e4d30623b4",
+      "candidate_tree": "a61f1b0686c65719a83e0b065f5ac632f88cba96",
+      "frozen_ref": "frozen/r8-v15-r1-q14-permanent-invariants-2026-09-27",
+      "candidate_state": "FROZEN",
+      "review_state": "CHANGES_REQUIRED",
+      "freeze_attestation": "governance-r8/freeze-attestations/Q14-FREEZE-ATTESTATION.json"
+    },
+    {
+      "id": "Q15",
+      "pr": 64,
+      "branch": "codex/r8-v15-r1-q15-q14-review-successor-2026-09-27",
+      "dependencies": ["Q14"],
+      "state": "FROZEN_REVIEWED_CHANGES_REQUIRED",
+      "candidate_state": "PRE_FREEZE_READY",
+      "review_state": "CHANGES_REQUIRED",
+      "external_lifecycle": {
+        "state": "FROZEN_VERIFIED",
+        "candidate_commit": "8ce8226818407924d81cee98a2800fc64d1797b1",
+        "candidate_tree": "a571f49f66f0543ac2f12bdf5b39db99d537a02c",
+        "frozen_ref": "frozen/r8-v15-r1-q15-review-remediation-successor-2026-09-27",
+        "attestation_location": "EXTERNAL_NOT_CANDIDATE_LOCAL"
+      }
+    },
+    {
+      "id": "Q16",
+      "pr": 66,
+      "branch": "codex/r8-v15-r1-q16-q15-review-successor-2026-09-27",
+      "dependencies": ["Q15"],
+      "state": "FROZEN_REVIEWED_CHANGES_REQUIRED",
+      "candidate_state": "PRE_FREEZE_READY",
+      "review_state": "CHANGES_REQUIRED",
+      "external_lifecycle": {
+        "state": "FROZEN_VERIFIED",
+        "candidate_commit": "66b720bd33eb200428c64c31c50e8c5a1ce5cec1",
+        "candidate_tree": "78061fdbc0340f3025a056612836cf9b2df1a412",
+        "frozen_ref": "frozen/r8-v15-r1-q16-q15-review-successor-2026-09-27",
+        "attestation_location": "EXTERNAL_NOT_CANDIDATE_LOCAL",
+        "evidence_pointer": {
+          "tracker": "issue:#67",
+          "independent_review": "governance-r8/R8-V15-R1-Q16-INDEPENDENT-REVIEW-001.txt",
+          "committed_review_sha256": "4d8a83199945584f9922529279bbbe99dd54aeb79c60b07f06dc471265d3de3a",
+          "committed_review_git_blob": "65b149e6147607f203176642dccfbc76acf084bf",
+          "original_upload_raw_sha256": "69c5e8087aaca9aca26bfee956d77601ff2c6fd904189f5bb5d194c1c01db47c",
+          "original_upload_verification": "EXTERNAL_RECEIPT_ONLY"
+        }
+      }
+    },
+    {
+      "id": "Q17",
+      "pr": 68,
+      "branch": "codex/r8-v15-r1-q17-q16-review-successor-2026-09-27",
+      "dependencies": ["Q16"],
+      "state": "FROZEN_REVIEWED_CHANGES_REQUIRED",
+      "candidate_state": "PRE_FREEZE_READY",
+      "review_state": "CHANGES_REQUIRED",
+      "external_lifecycle": {
+        "state": "FROZEN_VERIFIED",
+        "candidate_commit": "b88b5d51dc0f5299c611f57df36153ab0962b54c",
+        "candidate_tree": "9f3d5429b30db1036c937efa8895bf001e986783",
+        "frozen_ref": "frozen/r8-v15-r1-q17-q16-review-successor-2026-09-27",
+        "attestation_location": "EXTERNAL_NOT_CANDIDATE_LOCAL",
+        "evidence_pointer": {
+          "tracker": "issue:#69",
+          "independent_review": "governance-r8/R8-V15-R1-Q17-INDEPENDENT-REVIEW-001.txt",
+          "committed_review_sha256": "9e7a8bc139d737f7a416f193ee5bc825ab4fd08309d7ae20182c444d22a3050c",
+          "committed_review_git_blob": "15469009bc17706dd2596fb6031a5ce5128d79e2",
+          "original_upload_raw_sha256": "8cc7930940adc230529b69c43d92a93134c093014663293a53fa1e6fd8c3d004",
+          "original_upload_verification": "EXTERNAL_RECEIPT_ONLY"
+        }
+      }
+    },
+    {
+      "id": "Q18",
+      "pr": 70,
+      "branch": "codex/r8-v15-r1-q18-q17-review-successor-2026-09-27",
+      "dependencies": ["Q17"],
+      "state": "CODE_COMPLETE",
+      "candidate_state": "PRE_FREEZE_READY",
+      "review_state": "NOT_REVIEWED"
     }
   ],
   "authority": {
