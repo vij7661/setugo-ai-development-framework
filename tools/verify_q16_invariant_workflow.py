@@ -39,6 +39,36 @@ CONTRACT={
 REQUIRED=tuple(CONTRACT.values())
 EXPECTED_TOP=("name","on","permissions","env","jobs")
 EXPECTED_BRANCHES=("integration/r8-v15-r1-post-sg1-convergence-2026-09-26","codex/r8-v15-r1-q16-q15-review-successor-2026-09-27","codex/r8-v15-r1-q17-q16-review-successor-2026-09-27","codex/r8-v15-r1-q18-q17-review-successor-2026-09-27")
+SYNTAX_STEP="Syntax-check changed Python without writing bytecode"
+SYNTAX_RUN_BODY='''set -euo pipefail
+python3 - <<'PY'
+import ast
+from pathlib import Path
+files = [
+    "tools/r8_v15_r1_review_contract_parser.py",
+    "tools/preflight_r8_v15_r1_stage2_sg1_review.py",
+    "tools/r8_v15_r1_stage2_semantic_gap_inventory.py",
+    "tools/r8_evidence_bundle_integrity.py",
+    "tools/r8_work_queue.py",
+    "tools/r8_v15_r1_independent_review_parser.py",
+    "governance-runtime/r8_v15_r1_frozen_schema_runtime.py",
+    "governance-runtime/candidate_execution_evidence.py",
+    "governance-runtime/freeze_attestation.py",
+    "governance-runtime/provider_api_request_contract.py",
+    "governance-runtime/reviewer_evidence_delivery.py",
+    "governance-runtime/q15_review_merge_gate.py",
+    "governance-runtime/governed_evidence_receipt.py",
+    "governance-runtime/github_evidence_ingestion.py",
+    "governance-runtime/trusted_receipt_fetch.py",
+    "governance-runtime/manual_review_ingestion.py",
+    "governance-runtime/stage_evidence_data.py",
+    "governance-runtime/trusted_receipt_fetch.py",
+]
+for name in files:
+    ast.parse(Path(name).read_text(encoding="utf-8"), filename=name)
+print(f"AST_SYNTAX_PASS files={len(files)}")
+PY'''
+SYNTAX_RUN_BODY="\n".join(line.strip() for line in SYNTAX_RUN_BODY.splitlines()).strip()
 
 def structural_contract(text):
     """Validate the intentionally small, canonical workflow subset."""
@@ -91,11 +121,17 @@ def structural_contract(text):
             with_keys.append(key);with_values[key]=value.strip()
     if with_keys != ["fetch-depth","persist-credentials"] or with_values != {"fetch-depth":"0","persist-credentials":"false"}:
         raise ValueError("checkout input contract changed")
-    # Only checkout has `with`; only the syntax step may declare bash.
-    for i,line in enumerate(lines):
-        if line.startswith("        ") and not line.startswith("          ") and line.strip().endswith(":"):
-            key=line.strip().split(":",1)[0]
-            if key not in {"run","with","shell"}: raise ValueError("unsupported step field")
+    current="__checkout";seen={}
+    for line in lines:
+        if line.startswith("      - name:"):
+            current=line.split(":",1)[1].strip();seen.setdefault(current,[])
+        elif line.startswith("        ") and not line.startswith("          ") and ":" in line:
+            seen.setdefault(current,[]).append(line.strip().split(":",1)[0])
+    if seen.get("__checkout") != ["with"]: raise ValueError("checkout fields changed")
+    for name,fields in seen.items():
+        if name=="__checkout": continue
+        allowed=["shell","run"] if name in {SYNTAX_STEP,"Verify worktree clean"} else ["run"]
+        if fields != allowed: raise ValueError(f"step fields changed: {name}")
     return True
 def steps(text):
  lines=text.replace("\r\n","\n").splitlines();result={};current=None;i=0
@@ -127,6 +163,10 @@ def verify(text):
   if "if" in step:raise ValueError(f"conditional skip forbidden: {name}")
   if step.get("shell") not in (None,"bash"):raise ValueError(f"unapproved shell semantics: {name}")
   if any(token in step["run"] for token in ("|| true","set +e","\n","echo ","printf ","<<","exit 0")):raise ValueError(f"weakened governed command: {name}")
+ syntax=inventory.get(SYNTAX_STEP)
+ if not syntax or syntax.get("shell")!="bash" or syntax.get("run")!=SYNTAX_RUN_BODY: raise ValueError("syntax step command contract changed")
+ clean=inventory.get("Verify worktree clean")
+ if not clean or clean.get("shell")!="bash" or clean.get("run")!='test -z "$(git status --porcelain=v1)"': raise ValueError("clean-worktree step contract changed")
  if 'PYTHONDONTWRITEBYTECODE: "1"' not in text or 'AUTHORITY_EFFECT: "NONE"' not in text:raise ValueError("workflow governance environment missing")
 def executable_run_text(text):return "\n".join(v.get("run","") for v in steps(text).values())
 def main():verify(WORKFLOW.read_text(encoding="utf-8"));print(f"Q18_INVARIANT_WORKFLOW_SELF_CHECK_PASS required={len(CONTRACT)}")

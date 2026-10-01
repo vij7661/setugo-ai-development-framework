@@ -33,5 +33,9 @@ def main():
  for extra in ("ref: attacker-branch","repository: attacker/repository","path: attacker","token: secret","clean: false","sparse-checkout: src","fetch-tags: true","lfs: true","submodules: true","fetch-depth: 1","persist-credentials: true","extra-input: value"):
   replacement=extra+"\n"+checkout if extra.split(":",1)[0] not in {"fetch-depth","persist-credentials"} else extra+"\n"+("          persist-credentials: false" if extra.startswith("fetch-depth") else "          fetch-depth: 0")
   rejects(text.replace(checkout,replacement,1))
+ rejects(text.replace("        shell: bash\n        run: |","        shell: always-success {0}\n        run: |",1))
+ rejects(text.replace("          set -euo pipefail","          echo bypass",1))
+ rejects(text.replace("          print(f\"AST_SYNTAX_PASS files={len(files)}\")","          print('bypass')",1))
+ rejects(text.replace("      - name: Syntax-check changed Python without writing bytecode\n        shell: bash\n        run: |","      - name: Syntax-check changed Python without writing bytecode\n        run: |",1))
  print(f"Q18_INVARIANT_WORKFLOW_ADVERSARIAL_PASS required={len(CONTRACT)}")
 if __name__=="__main__":main()

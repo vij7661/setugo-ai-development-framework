@@ -12,6 +12,8 @@ def main():
   rejects(bad)
  for bad in ('steps:\n  - {"u\\x73es": actions/checkout@v4}','steps:\n  - {uses: &pin actions/checkout@v4}','steps:\n  - {uses: *pin}','steps:\n  - {uses: !Ref actions/checkout@v4}','steps:\n  - {uses:\n      actions/checkout@v4}'):
   rejects(bad)
+ rejects("steps:\n  - {uses: actions/checkout@"+"a"*40+"}\n  - ? uses\n    : actions/upload-artifact@v4")
+ rejects("steps:\n  - {uses: actions/checkout@"+"a"*40+"}\n  - ? uses\n    : 'actions/upload-artifact@v4'")
  verify("steps:\n  - {uses: actions/checkout@"+"a"*40+"}")
  verify("steps:\n  - uses: docker://alpine@sha256:"+"a"*64)
  verify("steps:\n  - uses: './.github/actions/governed'")
