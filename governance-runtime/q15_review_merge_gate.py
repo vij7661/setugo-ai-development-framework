@@ -45,7 +45,11 @@ def review_merge_evidence_eligible(*, review_path: Path, freeze_attestation_path
     packet_statement = attestation["review_packet_statement"] if receipt.get("schema")=="r8-governed-evidence-receipt/v2" else json.loads(review_packet_statement_path.read_text(encoding="utf-8"))
     identity = parsed["identity"]
     exact_fields = ("baseline", "candidate_commit", "candidate_tree", "changed_file_count", "packet_run_job", "linux_run_job")
-    if any(identity.get(field) != expected_identity.get(field) for field in exact_fields): return False
+    for field in exact_fields:
+        left,right=identity.get(field),expected_identity.get(field)
+        if field.endswith("run_job"):
+            if tuple(left or ()) != tuple(right or ()): return False
+        elif left != right: return False
     rc=receipt["candidate"]
     if (rc["baseline"],rc["commit"],rc["tree"],rc["changed_file_count"],rc["frozen_ref"]) != (expected_identity["baseline"],expected_identity["candidate_commit"],expected_identity["candidate_tree"],expected_identity["changed_file_count"],expected_identity["frozen_ref"]): return False
     if attestation.get("candidate_commit") != expected_identity["candidate_commit"] or attestation.get("candidate_tree") != expected_identity["candidate_tree"]: return False
