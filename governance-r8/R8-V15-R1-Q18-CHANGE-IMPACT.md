@@ -41,3 +41,15 @@ All repairs preserve the provider request contract and keep `AUTHORITY_EFFECT = 
 | PF4-H02 | ACCEPTED | Action lint rejects unsupported block scalars and escaped/aliased/tagged/quoted mapping representations; governed workflow inventory is exhaustive. | Mutable block-scalar actions, flow/quoted/escaped keys, Docker tags, traversal locals, and omitted workflows fail closed. | Control/evidence only |
 
 PF4-H01 was previously blocked pending promotion and is now closed after the explicit authorization recorded for the exact successor root above. The trusted root remains independent of the current Q18 candidate HEAD. `AUTHORITY_EFFECT = NONE`; fallback-to-3 remains active; six-slice cadence remains not restored. Frozen Q17 and all earlier history remain unchanged.
+
+## Q18 formal pre-freeze acceptance record
+
+- Accepted candidate: `c79699fccce994b4c577299c08b29a57efba65b`
+- State: `PRE_FREEZE_READY / ACCEPTED`
+- Fresh Ubuntu validation: workflow `36842096251`, job `110303355965`, runner `ubuntu-24.04`, exact head `c79699fccce994b4c577299c08b29a57efba65b`; 34 governed steps passed, with zero failures and zero skips; both Stage1 guards completed successfully and were not skipped.
+- Manual review: `BOUNDED_PASS`; PF5-MR-H01-R2, PF5-MR-M01-R2, and PF5-MR-C01 closed.
+- Trusted verifier root: commit `698d390dee9f062c984be8663aafc7994d009542`, tree `b5f89c29d91a2b55caec1815009d414e162bef11`; independent of the accepted candidate.
+- Trusted receipt and Q15 eligibility: passed. Worktree: clean.
+- `AUTHORITY_EFFECT = NONE`; fallback-to-3 remains `ACTIVE`; six-slice cadence remains `NOT_RESTORED`.
+
+This is an acceptance record only. It does not constitute freeze, merge, activation, runtime qualification, release, deployment, or any policy/root/terminal authority grant. Historical findings and remediation evidence remain preserved.
